@@ -1,4 +1,5 @@
 ﻿using System;
+using System.ComponentModel.Design;
 using System.Runtime.InteropServices;
 using System.Text.Unicode;
 //Розробка програми для керування студентським розкладом:
@@ -11,62 +12,65 @@ namespace SchleduleApp
 {
     public class SchleduleUniversity
     {
+        private static int[] maxLenghts = new int[5];
+        private static string[,] schledule = new string[5, 6];
         public Guid Id { get; set; }
-        public string Name { get; set; }
-        public string Description { get; set; }
-        public string Changes { get; set; }
-        public string Looking { get; set; }
-        public string Saving { get; set; }
+        public string Day { get; set; } = DateTime.Now.Day.ToString();
+        public string Time { get; set; }
+        public string Locations { get; set; }
+
         internal class Program
         {
             static void Main(string[] args)
             {
-                InterfaceStudent();
-            }
-            private static void InterfaceStudent()
-            {
-                while (true)
-                {
-                    Console.WriteLine("Вітаємо! Ви увійшли до системи як студент.");
-                    Console.WriteLine("Введіть ваше ім'я.");
-                    Console.WriteLine("Введіть ваше прізвище.");
-                    Console.WriteLine("Введіть вашу групу.");
-                    Console.WriteLine("Оберіть, що ви хочете зробити:");
-                    Console.WriteLine("1. Переглянути розклад занять");
-                    Console.WriteLine("2. Додати заняття");
-                    Console.WriteLine("3. Відмінити заняття");
-                    Console.WriteLine("4. Редагувати заняття");
-
-                    int choice = int.Parse(Console.ReadLine());
-
-                    switch (choice)
-                    {
-                        case 1:
-                            ShowSchledule();
-                            break;
-                        case 2:
-                            AddLesson();
-                            break;
-                        case 3:
-                            RemoveLesson();
-                            break;
-                        case 4:
-                            Editing();
-                            break;
-                        default:
-                            Console.WriteLine("Некоректне введення. Спробуйте ще.");
-                            Console.Clear();
-                            break;
-                    }
-                }
+                Console.InputEncoding = System.Text.Encoding.UTF8;
+                Console.OutputEncoding = System.Text.Encoding.UTF8;
+                //       InterfaceStudent();
+                //   }
+                //   private static void InterfaceStudent()
+                //   {
+                //       Console.WriteLine("Вітаємо! Ви увійшли до системи як студент.");
+                //       Console.WriteLine("Введіть ваше ім'я.");
+                //       string name = Convert.ToString(Console.ReadLine());
+                //       Console.WriteLine("Введіть ваше прізвище.");
+                //       string surname = Convert.ToString(Console.ReadLine());
+                //       Console.WriteLine("Введіть вашу групу.");
+                //       string groups = Convert.ToString(Console.ReadLine());
+                //       while (true)
+                //       {
+                //           Console.WriteLine($"Вітаю,{surname}  {name}");
+                //           Console.WriteLine("Оберіть, що ви хочете зробити:");
+                //           Console.WriteLine("1. Переглянути розклад занять");
+                //           Console.WriteLine("2. Додати заняття");
+                //           Console.WriteLine("3. Відмінити заняття");
+                //           Console.WriteLine("4. Редагувати заняття");
+                //
+                //           int choice = int.Parse(Console.ReadLine());
+                //
+                //           switch (choice)
+                //           {
+                //               case 1:
+                //                   ShowSchledule();
+                //                   break;
+                //               case 2:
+                AddLesson(ref schledule, ref maxLenghts);
+                //                   break;
+                //               case 3:
+                //                   RemoveLesson();
+                //                   break;
+                //               case 4:
+                //                   Editing();
+                //                   break;
+                //               default:
+                //                   Console.WriteLine("Некоректне введення. Спробуйте ще.");
+                //                   Console.Clear();
+                //                   break;
+                //           }
+                //       }
             }
         }
         private static void ShowSchledule()
         {
-            Console.InputEncoding = System.Text.Encoding.UTF8;
-            Console.OutputEncoding = System.Text.Encoding.UTF8;
-
-            string[,] schledule = new string[5, 6];
             schledule[0, 0] = " ";
             schledule[1, 0] = "1.";
             schledule[2, 0] = "2.";
@@ -98,8 +102,7 @@ namespace SchleduleApp
             schledule[3, 5] = "Структури даних";
             schledule[4, 5] = "";
             int cols = schledule.GetLength(1);
-            int[] maxLenghts = new int[cols];
-            int changelesson = 0;
+            maxLenghts = new int[cols];
             for (int i = 0; i < schledule.GetLength(0); i++)
             {
                 for (int j = 0; j < schledule.GetLength(1); j++)
@@ -118,20 +121,70 @@ namespace SchleduleApp
                 }
                 Console.WriteLine("\n");
             }
+        }
+        private static void AddLesson(ref string[,] schledule, ref int[] maxLenghts)
+        {
+            Console.Clear();
+            bool continueEditing = true;
 
-        }
-        private static void AddLesson()
-        {
+            while (continueEditing)
+                for (int i = 0; i < schledule.GetLength(0); i++)
+                {
 
-            Console.Clear();
+                    Console.WriteLine("Для того щоб додати заняття, видалити або редагувати, виберіть будь ласка день тижня.");
+                    string addindays = Console.ReadLine();
+                    for (int j = 0; j < schledule.GetLength(1); j++)
+                    {
+                        if (addindays == schledule[0, j])
+                        {
+                            int indexj = j;
+                            Console.WriteLine("Для того щоб додати заняття, видалити або редагувати,виберіть будь ласка # пари (1-4).");
+                            int addinlessons = Convert.ToInt32(Console.ReadLine());
+                            if (addinlessons <= 4)
+                            {
+                                int indexi = addinlessons;
+                                Console.WriteLine("Введіть, будь ласка, зміни");
+                                string changes = schledule[indexi, indexj];
+                                changes = Convert.ToString(Console.ReadLine());
+                                Console.WriteLine($"Заняття для пари {addinlessons} у день {addindays} змінено на '{changes}'");
+                                Console.WriteLine("\n Для завершення редагування натисніть клавішу \"Space\".Для продовження будь яку клавішу. ");
+                                ConsoleKeyInfo key = Console.ReadKey();
+                                if (key.Key == ConsoleKey.Spacebar)
+                                {
+                                    continueEditing = false;
+                                    break; ;
+                                }
+                                else
+                                {
+                                    continue;
+                                }
+                            }
+                        }
+                    }
+
+                }
+            if (!continueEditing)
+            {
+                for (int i = 0; i < schledule.GetLength(0); i++)
+                {
+                    for (int j = 0; j < schledule.GetLength(1); j++)
+                    {
+                        Console.Write(schledule[i, j].PadRight(maxLenghts[j] + 1));
+                    }
+                    Console.WriteLine("\n");
+                }
+            }
         }
-        private static void RemoveLesson()
-        {
-            Console.Clear();
-        }
-        private static void Editing()
-        {
-            Console.Clear();
-        }
+        //
+        //        private static void RemoveLesson()
+        //        {
+        //
+        //
+        //        }
+        //        private static void Editing()
+        //        {
+        //            Console.Clear();
+        //        }
     }
 }
+
