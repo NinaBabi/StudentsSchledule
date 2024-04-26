@@ -12,6 +12,8 @@ using System.Reflection.Metadata;
 using System.Runtime.InteropServices;
 using System.Text.Unicode;
 using static System.Net.Mime.MediaTypeNames;
+using System.Data.Common;
+using System.Reflection;
 //Розробка програми для керування студентським розкладом:
 //  Створіть програму, яка дозволяє студентам переглядати розклад занять за тиждень.
 //  Додайте функціонал для додавання нових занять, видалення та редагування існуючих.
@@ -26,8 +28,8 @@ namespace SchleduleApp
         private static string[,] schledule = new string[5, 6];
         public Guid Id { get; set; }
         public string Day { get; set; } = DateTime.Now.Day.ToString();
-        public string Time { get; set; }
-        public string Locations { get; set; }
+        public string Time { get; set; } = DateTime.Now.Hour.ToString();
+        public string Locations { get; set; } = "default_value";
 
         static void Main(string[] args)
         {
@@ -37,59 +39,68 @@ namespace SchleduleApp
         }
         private static void InterfaceStudent()
         {
-            Console.WriteLine("Вітаємо! Ви увійшли до системи як студент.");
-            Console.WriteLine("Введіть ваше ім'я.");
-            string name = Convert.ToString(Console.ReadLine());
-            Console.WriteLine("Введіть ваше прізвище.");
-            string surname = Convert.ToString(Console.ReadLine());
-            Console.WriteLine("Введіть вашу групу.");
-            string groups = Convert.ToString(Console.ReadLine());
-
-            while (true)
+            try
             {
-                Console.Clear();
-                Console.WriteLine($"Вітаю,{surname}  {name}");
-                Console.WriteLine("Оберіть, що ви хочете зробити:");
-                Console.WriteLine("1. Переглянути розклад занять");
-                Console.WriteLine("2. Додати, відмінити чи редагувати заняття");
-                Console.WriteLine("3. Зберегти відредагований розклад");
-                Console.WriteLine("4. Вийти. ");
-                Console.WriteLine("5. Знайти предмет по назві."); //Зберегти відредагований розклад pdf
-               
+                Console.WriteLine("Вітаємо! Ви увійшли до системи як студент.");
+                Console.WriteLine("Введіть ваше ім'я.");
+                string name = Convert.ToString(Console.ReadLine());
+                Console.WriteLine("Введіть ваше прізвище.");
+                string surname = Convert.ToString(Console.ReadLine());
+                Console.WriteLine("Введіть вашу групу.");
+                string groups = Convert.ToString(Console.ReadLine());
 
-                int choice = int.Parse(Console.ReadLine());
-                AgrigateSchledule();
-                switch (choice)
+
+                while (true)
                 {
-                    case 1:
-                        AddShowMethod(ref schledule);
-                        break;
-                    case 2:
-                        Editing(ref schledule, ref maxLenghts);
-                        break;
-                    case 3:
-                        SaveBytes(ref schledule, ref maxLenghts);
-                        Environment.Exit(0);
-                        break;
-                    case 4:
-                        SaveBytes(ref schledule, ref maxLenghts);
-                        Environment.Exit(0);
-                        break;
-                    case 5:
-                        //       ExportToPdf(ref schledule);
-                        Founded(ref schledule);
-                        break;
-                    default:
-                        Console.WriteLine("Некоректне введення. Спробуйте ще.");
-                        Console.Clear();
-                        break;
+                    Console.Clear();
+                    Console.WriteLine($"Вітаю,{surname}  {name}");
+                    Console.WriteLine("Оберіть, що ви хочете зробити:");
+                    Console.WriteLine("1. Переглянути розклад занять");
+                    Console.WriteLine("2. Додати, відмінити чи редагувати заняття");
+                    Console.WriteLine("3. Зберегти відредагований розклад");
+                    Console.WriteLine("4. Вийти. ");
+                    Console.WriteLine("5. Знайти предмет по назві."); //Зберегти відредагований розклад pdf
+
+
+                    int choice = int.Parse(Console.ReadLine());
+                    AgrigateSchledule();
+                    switch (choice)
+                    {
+                        case 1:
+                            AddShowMethod(ref schledule);
+                            break;
+                        case 2:
+                            Editing(ref schledule, ref maxLenghts);
+                            break;
+                        case 3:
+                            SaveBytes(ref schledule, ref maxLenghts);
+                            Environment.Exit(0);
+                            break;
+                        case 4:
+                            SaveBytes(ref schledule, ref maxLenghts);
+                            Environment.Exit(0);
+                            break;
+                        case 5:
+                            //       ExportToPdf(ref schledule);
+                            Founded(ref schledule);
+                            break;
+                        default:
+                            Console.WriteLine("Некоректне введення. Спробуйте ще.");
+                            Console.Clear();
+                            break;
+                    }
+
                 }
+            }
+            catch
+            {
+                Console.WriteLine("Ви ввели некоректне значення.");
             }
         }
 
         private static void AgrigateSchledule()
         {
-        
+
             schledule[0, 0] = " ";
             schledule[1, 0] = "1.";
             schledule[2, 0] = "2.";
@@ -282,34 +293,40 @@ namespace SchleduleApp
         //   }
         private static void Founded(ref string[,] schledule)
         {
-            Console.Clear();
-            List<string> foundLessons = new List<string>();
-            Console.WriteLine("Введіть будь ласка предмет для пошуку в розкладі.");
-            string SearchLesson = Console.ReadLine();
-            for (int i = 0; i < schledule.GetLength(0); i++)
+            try
             {
-                for (int j = 1; j < schledule.GetLength(1); j++)
+                Console.Clear();
+                List<string> foundLessons = new List<string>();
+                Console.WriteLine("Введіть будь ласка предмет для пошуку в розкладі.");
+                string SearchLesson = Console.ReadLine();
+                for (int i = 0; i < schledule.GetLength(0); i++)
                 {
-                    if (schledule[i, j] != null && schledule[i, j].Contains(SearchLesson, StringComparison.OrdinalIgnoreCase))
+                    for (int j = 1; j < schledule.GetLength(1); j++)
                     {
-                        foundLessons.Add($"{schledule[i, 0]}: {schledule[0, j]}");
+                        if (schledule[i, j] != null && schledule[i, j].Contains(SearchLesson, StringComparison.OrdinalIgnoreCase))
+                        {
+                            foundLessons.Add($"{schledule[i, 0]}: {schledule[0, j]}");
+                        }
                     }
                 }
-            }
-            if (foundLessons.Any())
-            {
-                Console.WriteLine($"Результати пошуку для '{SearchLesson}':");
-                foreach (var lesson in foundLessons)
+                if (foundLessons.Any())
                 {
-                    Console.WriteLine(lesson);
+                    Console.WriteLine($"Результати пошуку для '{SearchLesson}':");
+                    foreach (var lesson in foundLessons)
+                    {
+                        Console.WriteLine(lesson);
+                    }
+                }
+                else
+                {
+                    Console.WriteLine($"Занять з назвою '{SearchLesson}' не знайдено.");
                 }
             }
-            else
+            catch
             {
-                Console.WriteLine($"Занять з назвою '{SearchLesson}' не знайдено.");
+                Console.WriteLine("Ви ввели некоректне значення.");
             }
         }
-
     }
 }
 
